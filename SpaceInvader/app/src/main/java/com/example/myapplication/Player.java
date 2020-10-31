@@ -36,7 +36,11 @@ public class Player {
 
     // Is the ship moving and in which direction
     private int shipMoving = STOPPED;
-
+    //Boundaries of screen
+    private float leftMargin;
+    private float rightMargin;
+    //context
+    Context context;
     // This the the constructor method
     // When we create an object from this class we will pass
     // in the screen width and height
@@ -45,21 +49,21 @@ public class Player {
         // Initialize a blank RectF
         rect = new RectF();
 
+
         length = screenX/10;
         height = screenY/10;
 
+        this.context=context;
+
+        leftMargin=5;
+        rightMargin=screenX-length;
         // Start ship in roughly the screen centre
         x = screenX / 2;
         y = screenY - height;
 
         // Initialize the bitmap
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
-
-        // stretch the bitmap to a size appropriate for the screen resolution
-        bitmap = Bitmap.createScaledBitmap(bitmap,
-                (int) (length),
-                (int) (height),
-                false);
+       bitmapSetup();
 
         // How fast is the spaceship in pixels per second
         speed = 350;
@@ -97,19 +101,34 @@ public class Player {
     // It determines if the player ship needs to move and changes the coordinates
     // contained in x if necessary
     public void update(long fps){
-        if(shipMoving == LEFT){
+        if(shipMoving == LEFT && x>=leftMargin){
             x = x - speed / fps;
+            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playermove);
+            bitmapSetup();
         }
 
-        if(shipMoving == RIGHT){
+        if(shipMoving == RIGHT && x<=rightMargin){
             x = x + speed / fps;
+            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playermove);
+            bitmapSetup();
         }
-
+        if(shipMoving==STOPPED) {
+            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
+            bitmapSetup();
+        }
         // Update rect which is used to detect hits
         rect.top = y;
         rect.bottom = y + height;
         rect.left = x;
         rect.right = x + length;
 
+    }
+    void bitmapSetup()
+    {
+        // stretch the bitmap to a size appropriate for the screen resolution
+        bitmap = Bitmap.createScaledBitmap(bitmap,
+                (int) (length),
+                (int) (height),
+                false);
     }
 }
