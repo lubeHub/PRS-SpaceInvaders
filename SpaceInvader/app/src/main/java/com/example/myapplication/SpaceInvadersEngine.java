@@ -3,16 +3,25 @@ package com.example.myapplication;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.fonts.Font;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import java.io.IOException;
 
@@ -70,7 +79,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
     private int damageShelterID = -1;
     private int uhID = -1;
     private int ohID = -1;
-
+    private Bitmap backgroundImage;
+    private Bitmap heart;
     // The score
     int score = 0;
 
@@ -95,7 +105,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
         // Make a globally available copy of the context so we can use it in another method
         this.context = context;
-
+        backgroundImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.background);
+        heart = BitmapFactory.decodeResource(context.getResources(), R.drawable.heart);
         // Initialize ourHolder and paint objects
         ourHolder = getHolder();
         paint = new Paint();
@@ -371,9 +382,9 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
             // Lock the canvas ready to draw
             canvas = ourHolder.lockCanvas();
 
-            // Draw the background color
-            canvas.drawColor(Color.argb(255, 26, 128, 182));
 
+            // Draw the background image
+            canvas.drawBitmap(backgroundImage,0,0,null);
             // Choose the brush color for drawing
             paint.setColor(Color.argb(255,  255, 255, 255));
 
@@ -404,15 +415,19 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
             }
 
             // Draw the score and remaining lives
-            // Change the brush color
-            paint.setColor(Color.argb(255,  249, 129, 0));
-            paint.setTextSize(80);
-            canvas.drawText("Score: " + score + "   Lives: " + lives, 20,90, paint);
+            Typeface typeface = ResourcesCompat.getFont(context, R.font.ka1);
+            paint.setTypeface(typeface);
+            paint.setTextSize(35);
+            paint.setColor(Color.WHITE);
+            canvas.drawText(String.format("%06d", score), 20,50, paint);
+            canvas.drawBitmap(heart,20,100,null);
+
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
         }
     }
+
 
     // The SurfaceView class implements onTouchListener
     // So we can override this method and detect screen touches.
