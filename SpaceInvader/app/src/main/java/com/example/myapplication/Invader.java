@@ -48,7 +48,7 @@ public class Invader {
 
         isVisible = true;
 
-        int padding = screenX / 25;
+        int padding = screenY / 25;
 
         x = column * (length + padding);
         y = row * (length + padding/4);

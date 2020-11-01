@@ -107,6 +107,10 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         this.context = context;
         backgroundImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.background);
         heart = BitmapFactory.decodeResource(context.getResources(), R.drawable.heart);
+        heart = Bitmap.createScaledBitmap(heart,
+                42,
+                42,
+                false);
         // Initialize ourHolder and paint objects
         ourHolder = getHolder();
         paint = new Paint();
@@ -414,14 +418,17 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
                 }
             }
 
-            // Draw the score and remaining lives
+            // Draw the score
             Typeface typeface = ResourcesCompat.getFont(context, R.font.ka1);
             paint.setTypeface(typeface);
             paint.setTextSize(35);
             paint.setColor(Color.WHITE);
             canvas.drawText(String.format("%06d", score), 20,50, paint);
-            canvas.drawBitmap(heart,20,100,null);
 
+            //Draw remaining lives
+            for(int i=0;i<lives;i++) {
+                canvas.drawBitmap(heart, 220+i*50, 23, null);
+            }
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
