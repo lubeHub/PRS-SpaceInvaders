@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -24,13 +25,16 @@ import android.view.SurfaceView;
 import androidx.core.content.res.ResourcesCompat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+@SuppressLint("ViewConstructor")
 public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
     Context context;
 
     // This is our thread
     private Thread gameThread = null;
+    ArrayList<Background> backgrounds;
 
     // Our SurfaceHolder to lock the surface before we draw our graphics
     private SurfaceHolder ourHolder;
@@ -39,7 +43,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
     // when the game is running- or not.
     private volatile boolean playing;
 
-    // Game is paused at the start
+    // fGame is paused at the start
     private boolean paused = true;
 
     // A Canvas and a Paint object
@@ -60,7 +64,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
     private Player playerShip;
 
     // The player's bullet
-    private Bullet bullet;
+    private Bullet[] bullet = new Bullet[200];
 
     // The invaders bullets
     private Bullet[] invadersBullets = new Bullet[200];
@@ -81,6 +85,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
     private int ohID = -1;
     private Bitmap backgroundImage;
     private Bitmap heart;
+
+    Background bg;
     // The score
     int score = 0;
 
@@ -117,7 +123,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
         screenX = x;
         screenY = y;
-
+        addBackgroundsToList(screenX,screenY);
         // This SoundPool is deprecated but don't worry
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
 
@@ -164,8 +170,9 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         playerShip = new Player(context, screenX, screenY);
 
         // Prepare the player's bullet
-        bullet = new Bullet(screenY);
-
+        for(int i=0;i<bullet.length;i++) {
+            bullet[i] = new Bullet(screenY);
+        }
         // Initialize the invadersBullets array
         for(int i = 0; i < invadersBullets.length; i++){
             invadersBullets[i] = new Bullet(screenY);
@@ -192,16 +199,12 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
             // Capture the current time in milliseconds in startFrameTime
             long startFrameTime = System.currentTimeMillis();
-
-
             // Update the frame
             if (!paused) {
                 update();
             }
-
             // Draw the frame
             draw();
-
             // Calculate the fps this frame
             // We can then use the result to
             // time animations and more.
@@ -230,9 +233,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
                 }
             }
 
-
         }
-
 
     }
 
@@ -243,6 +244,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
         // Has the player lost
         boolean lost = false;
+
+
 
         // Move the player's ship
         playerShip.update(fps);
@@ -261,7 +264,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
                     // If so try and spawn a bullet
                     if (invadersBullets[nextBullet].shoot(invaders[i].getX()
                                     + invaders[i].getLength() / 2,
-                            invaders[i].getY(), bullet.DOWN)) {
+                            invaders[i].getY(), invadersBullets[i].DOWN)) {
 
                         // Shot fired
                         // Prepare for the next shot
@@ -288,8 +291,10 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
 
         // Update the players bullet
-        if(bullet.getStatus()){
-            bullet.update(fps);
+        for(int i=0;i<bullet.length;i++) {
+            if (bullet[i].getStatus()) {
+                bullet[i].update(fps);
+            }
         }
 
         // Update all the invaders bullets if active
@@ -321,10 +326,11 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
 
         // Has the player's bullet hit the top of the screen
-        if(bullet.getImpactPointY() < 0){
-            bullet.setInactive();
+        for(int i = 0; i < bullet.length; i++) {
+            if (bullet[i].getImpactPointY() < 0) {
+                bullet[i].setInactive();
+            }
         }
-
         // Has an invaders bullet hit the bottom of the screen
         for(int i = 0; i < invadersBullets.length; i++){
             if(invadersBullets[i].getImpactPointY() > screenY){
@@ -333,21 +339,23 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
 
         // Has the player's bullet hit an invader
-        if(bullet.getStatus()) {
-            for (int i = 0; i < numInvaders; i++) {
-                if (invaders[i].getVisibility()) {
-                    if (RectF.intersects(bullet.getRect(), invaders[i].getRect())) {
-                        invaders[i].setInvisible();
-                        soundPool.play(invaderExplodeID, 1, 1, 0, 0, 1);
-                        bullet.setInactive();
-                        score = score + 10;
+        for(int j=0;j<bullet.length;j++) {
+            if (bullet[j].getStatus()) {
+                for (int i = 0; i < numInvaders; i++) {
+                    if (invaders[i].getVisibility()) {
+                        if (RectF.intersects(bullet[j].getRect(), invaders[i].getRect())) {
+                            invaders[i].setInvisible();
+                            soundPool.play(invaderExplodeID, 1, 1, 0, 0, 1);
+                            bullet[j].setInactive();
+                            score = score + 10;
 
-                        // Has the player won
-                        if(score == numInvaders * 10){
-                            paused = true;
-                            score = 0;
-                            lives = 3;
-                            prepareLevel();
+                            // Has the player won
+                            if (score == numInvaders * 10) {
+                                paused = true;
+                                score = 0;
+                                lives = 3;
+                                prepareLevel();
+                            }
                         }
                     }
                 }
@@ -377,7 +385,9 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
                 }
             }
         }
-
+        for (Background bg : backgrounds) {
+            bg.update(fps);
+        }
     }
 
     private void draw(){
@@ -388,7 +398,12 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
 
             // Draw the background image
-            canvas.drawBitmap(backgroundImage,0,0,null);
+         //   canvas.drawBitmap(backgroundImage,0,0,null);
+            for(int i=0;i<backgrounds.size();i++) {
+                drawBackground(i);
+            }
+
+
             // Choose the brush color for drawing
             paint.setColor(Color.argb(255,  255, 255, 255));
 
@@ -407,10 +422,11 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
             }
 
             // Draw the players bullet if active
-            if(bullet.getStatus()){
-                canvas.drawRect(bullet.getRect(), paint);
+            for(int i=0;i<bullet.length;i++) {
+                if (bullet[i].getStatus()) {
+                    canvas.drawRect(bullet[i].getRect(), paint);
+                }
             }
-
             // Draw the invaders bullets
             for(int i = 0; i < invadersBullets.length; i++){
                 if(invadersBullets[i].getStatus()) {
@@ -458,8 +474,9 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
                 if(motionEvent.getY() < screenY - screenY / 8) {
                     // Shots fired
-                    if(bullet.shoot(playerShip.getX()+
-                            playerShip.getLength()/2,screenY,bullet.UP)){
+                    for(int i=0;i<bullet.length;i++)
+                    if(bullet[i].shoot(playerShip.getX()+
+                            playerShip.getLength()/2,screenY,bullet[i].UP)){
                         soundPool.play(shootID, 1, 1, 0, 0, 1);
                     }
                 }
@@ -477,8 +494,45 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         return true;
     }
 
-    // If SpaceInvadersActivity is paused/stopped
+    private void drawBackground(int position) {
+
+        // Make a copy of the relevant background
+         bg = backgrounds.get(position);
+
+        // define what portion of images to capture and
+        // what coordinates of screen to draw them at
+
+        // For the regular bitmap
+        Rect fromRect1 = new Rect(0, 0, bg.width - bg.xClip, bg.height);
+        Rect toRect1 = new Rect(bg.xClip, bg.startY, bg.width, bg.endY);
+
+        // For the reversed background
+        Rect fromRect2 = new Rect(bg.width - bg.xClip, 0, bg.width, bg.height);
+        Rect toRect2 = new Rect(0, bg.startY, bg.xClip, bg.endY);
+
+        //draw the two background bitmaps
+        if (!bg.reversedFirst) {
+            canvas.drawBitmap(bg.bitmap, fromRect1, toRect1, paint);
+            canvas.drawBitmap(bg.bitmapReversed, fromRect2, toRect2, paint);
+        } else {
+            canvas.drawBitmap(bg.bitmap, fromRect2, toRect2, paint);
+            canvas.drawBitmap(bg.bitmapReversed, fromRect1, toRect1, paint);
+        }
+
+    }
+        // If SpaceInvadersActivity is paused/stopped
     // shutdown our thread.
+
+    private void addBackgroundsToList(int screenWidth,int screenHeight) {
+        backgrounds = new ArrayList<>();
+        for (int i = 0; i <= 7; i++) {
+            backgrounds.add(new Background(
+                    this.context,
+                    screenWidth,
+                    screenHeight,
+                    "bkgd_" + i, 0, 110, 50));
+        }
+    }
     public void pause() {
         playing = false;
         try {
@@ -496,4 +550,5 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         gameThread = new Thread(this);
         gameThread.start();
     }
+
 }
