@@ -29,13 +29,10 @@ public class Player {
     private float x;
     private float y;
 
-    // Which ways can the ship move
-    public final int STOPPED = 0;
-    public final int LEFT = 1;
-    public final int RIGHT = 2;
+
 
     // Is the ship moving and in which direction
-    private int shipMoving = STOPPED;
+    private boolean shipMoving = false;
     //Boundaries of screen
     private float leftMargin;
     private float rightMargin;
@@ -82,7 +79,17 @@ public class Player {
     public float getX(){
         return x;
     }
-
+    public float getY(){
+        return y;
+    }
+    public void setX(float x)
+    {
+        this.x=x;
+    }
+    public void setY(float y)
+    {
+        this.y=y;
+    }
     public float getHeight(){
         return height;
     }
@@ -93,35 +100,32 @@ public class Player {
     }
 
     // This method will be used to change/set if the ship is going left, right or nowhere
-    public void setMovementState(int state){
+    public void setMovementState(boolean state){
         shipMoving = state;
     }
 
     // This update method will be called from update in SpaceInvadersView
     // It determines if the player ship needs to move and changes the coordinates
-    // contained in x if necessary
+
     public void update(long fps){
-        if(shipMoving == LEFT && x>=leftMargin){
-            x = x - speed / fps;
-            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playermove);
-            bitmapSetup();
-        }
 
-        if(shipMoving == RIGHT && x<=rightMargin){
-            x = x + speed / fps;
-            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playermove);
-            bitmapSetup();
-        }
-        if(shipMoving==STOPPED) {
-            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
-            bitmapSetup();
-        }
+if(shipMoving) {
+
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playermove);
+       rect.left = x;
+       rect.top = y;
+    }
+   else
+   {
+       bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
+
+   }
         // Update rect which is used to detect hits
-        rect.top = y;
-        rect.bottom = y + height;
-        rect.left = x;
-        rect.right = x + length;
 
+        bitmapSetup();
+        rect.bottom = y+height;
+
+        rect.right =x+length;
     }
     void bitmapSetup()
     {

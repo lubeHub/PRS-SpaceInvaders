@@ -53,7 +53,11 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
     // The size of the screen in pixels
     private int screenX;
     private int screenY;
-
+    //screen margins
+    private float top;
+    private float left;
+    private float right;
+    private float bottom;
     // The players ship
     private Player playerShip;
 
@@ -119,6 +123,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
         screenX = x;
         screenY = y;
+
         addBackgroundsToList(screenX,screenY);
         // This SoundPool is deprecated but don't worry
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
@@ -151,6 +156,11 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
 
         prepareLevel();
+        top=5;
+        left=5;
+        right=x-playerShip.getLength();
+        bottom=y-playerShip.getHeight();
+
     }
 
     private void prepareLevel(){
@@ -240,7 +250,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
 
         // Move the player's ship
-        playerShip.update(fps);
+          playerShip.update(fps);
 
         // Update the invaders if visible
         for(int i = 0; i < numInvaders; i++) {
@@ -344,16 +354,21 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
                             // Has the player won
                             if (score == numInvaders * 10) {
-                                paused = true;
-                                score = 0;
-                                lives = 3;
-                                prepareLevel();
+                               newGameSetup();
                             }
                         }
                     }
                 }
             }
         }
+        for(int i=0;i<numInvaders;i++){
+            if (invaders[i].getVisibility()) {
+                if (RectF.intersects(playerShip.getRect(), invaders[i].getRect())) {
+                    newGameSetup();
+                }
+            }
+        }
+
 
 
 
@@ -369,11 +384,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
 
                     // Is it game over?
                     if (lives == 0) {
-                        paused = true;
-                        lives = 3;
-                        score = 0;
-                        prepareLevel();
-
+                        newGameSetup();
                     }
                 }
             }
@@ -397,8 +408,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
                 drawBackground(i);
             }
 */
-       drawBackground(0);
-       drawBackground(4);
+            drawBackground(0);
+     //  drawBackground(4);
             drawBackground(2);
             drawBackground(1);
 
@@ -406,7 +417,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
             paint.setColor(Color.argb(255,  255, 255, 255));
 
             // Draw the player spaceship
-            canvas.drawBitmap(playerShip.getBitmap(), playerShip.getX(), screenY - playerShip.getHeight(), paint);
+            canvas.drawBitmap(playerShip.getBitmap(), playerShip.getX(), playerShip.getY(), paint);
 
             // Draw the invaders
             for(int i = 0; i < numInvaders; i++){
@@ -449,36 +460,35 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
     }
 
+    float xDelta;
+    float yDelta;
 
-    // The SurfaceView class implements onTouchListener
-    // So we can override this method and detect screen touches.
+    //When player touch the screen
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+
+        float x = motionEvent.getRawX();
+        float y = motionEvent.getRawY();
 
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
             // Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-                paused = false;
-
-                if(motionEvent.getY() > screenY - screenY / 8) {
-                    if (motionEvent.getX() > screenX / 2) {
-                        playerShip.setMovementState(playerShip.RIGHT);
-                    } else {
-                        playerShip.setMovementState(playerShip.LEFT);
-                    }
-
+            xDelta= x -playerShip.getX();
+            yDelta= y -playerShip.getY();
+            //Player has dragged the finger
+            case MotionEvent.ACTION_MOVE:
+                if((x -xDelta)>=left && (x -xDelta)<=right && (y -yDelta)>=top && (y -yDelta)<=bottom) {
+                    playerShip.setX(x - xDelta);
+                    playerShip.setY(y - yDelta);
+                    paused = false;
                 }
-
+                playerShip.setMovementState(true);
                 break;
 
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
-
-                if(motionEvent.getY() > screenY - screenY / 10) {
-                    playerShip.setMovementState(playerShip.STOPPED);
-                }
-
+                    playerShip.setMovementState(false);
                 break;
         }
         return true;
@@ -528,7 +538,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
         else{
         if(playerBullets[playerNextBullet].shoot(playerShip.getX()+
-                playerShip.getLength()/2,screenY,playerBullets[playerNextBullet].UP)){
+                playerShip.getLength()/2,playerShip.getY()+playerShip.getHeight()/2,playerBullets[playerNextBullet].UP)){
             soundPool.play(shootID, 1, 1, 0, 0, 1);
             // Shot fired
             // Prepare for the next shot
@@ -543,6 +553,15 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable{
         }
         shootCounter=0;
         }
+    }
+
+    private void newGameSetup()
+    {
+        paused = true;
+        lives = 3;
+        score = 0;
+        prepareLevel();
+
     }
     public void pause() {
         playing = false;
