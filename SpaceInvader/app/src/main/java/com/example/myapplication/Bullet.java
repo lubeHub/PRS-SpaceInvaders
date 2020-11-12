@@ -4,19 +4,15 @@ import android.graphics.RectF;
 
 public class Bullet {
 
-    private float x;
-    private float y;
-
-    private RectF rect;
-
     // Which way is it shooting
     public final int UP = 0;
     public final int DOWN = 1;
-
     // Going nowhere
     int heading = -1;
     float speed =  350;
-
+    private float x;
+    private float y;
+    private RectF rect;
     private int width = 1;
     private int height;
 

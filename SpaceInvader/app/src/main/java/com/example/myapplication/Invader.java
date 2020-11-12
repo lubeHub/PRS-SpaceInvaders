@@ -14,8 +14,7 @@ public class Invader {
     Random generator = new Random();
 
     // The player ship will be represented by a Bitmap
-    private Bitmap bitmap1;
-    private Bitmap bitmap2;
+    private Bitmap bitmap;
 
     // How long and high our invader will be
     private float length;
@@ -29,7 +28,7 @@ public class Invader {
 
     // This will hold the pixels per second speedthat the invader will move
     private float shipSpeed;
-
+    private int health;
     public final int LEFT = 1;
     public final int RIGHT = 2;
 
@@ -38,7 +37,7 @@ public class Invader {
 
     boolean isVisible;
 
-    public Invader(Context context, int row, int column, int screenX, int screenY) {
+    public Invader(Context context, int row, int column, int screenX, int screenY,int type) {
 
         // Initialize a blank RectF
         rect = new RectF();
@@ -51,23 +50,57 @@ public class Invader {
         int padding = screenY / 25;
 
         x = column * (length + padding);
-        y = row * (length + padding/4);
+        y = row * (length + padding/2);
 
         // Initialize the bitmap
-        bitmap1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader1);
-        bitmap2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader2);
 
+        switch (type){
+            case 1:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster1);
+                health = 100;
+                break;
+            case 2:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster2);
+                health = 200;
+                break;
+            case 3:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster3);
+                health = 300;
+                break;
+            case 4:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster4);
+                health = 400;
+                break;
+            case 5:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster5);
+                health = 400;
+                break;
+            case 6:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster6);
+                health = 300;
+                break;
+            case 7:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster7);
+                health = 200;
+                break;
+            case 8:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster8);
+                health = 500;
+                break;
+            case 9:
+                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster9);
+                health = 400;
+                break;
+
+        }
         // stretch the first bitmap to a size appropriate for the screen resolution
-        bitmap1 = Bitmap.createScaledBitmap(bitmap1,
+        bitmap = Bitmap.createScaledBitmap(bitmap,
                 (int) (length),
                 (int) (height),
                 false);
 
         // stretch the first bitmap to a size appropriate for the screen resolution
-        bitmap2 = Bitmap.createScaledBitmap(bitmap2,
-                (int) (length),
-                (int) (height),
-                false);
+
 
         // How fast is the invader in pixels per second
         shipSpeed = 40;
@@ -86,12 +119,9 @@ public class Invader {
     }
 
     public Bitmap getBitmap(){
-        return bitmap1;
+        return bitmap;
     }
 
-    public Bitmap getBitmap2(){
-        return bitmap2;
-    }
 
     public float getX(){
         return x;
@@ -152,10 +182,6 @@ public class Invader {
 
         // If firing randomly (not near the player) a 1 in 2000 chance
         randomNumber = generator.nextInt(2000);
-        if(randomNumber == 0){
-            return true;
-        }
-
-        return false;
+        return randomNumber == 0;
     }
 }

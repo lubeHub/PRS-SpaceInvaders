@@ -17,7 +17,7 @@ public class Background {
     int startX;
     int endX;
 
-    Background(Context context, int screenWidth, int screenHeight, String bitmapName,  int sX, int eX, float s){
+    Background(Context context, int screenWidth, int screenHeight, String bitmapName, int sX, int eX, float s) {
 
         // Make a resource id out of the string of the file name
         int resID = context.getResources().getIdentifier(bitmapName,
@@ -48,11 +48,11 @@ public class Background {
 
     }
 
-    public void update(long fps){
+    public void update(long fps) {
 
 
         // Move the clipping position and reverse if necessary
-        yClip -= 150/fps;
+        yClip -= 150 / fps;
         if (yClip >= height) {
             yClip = 0;
 
