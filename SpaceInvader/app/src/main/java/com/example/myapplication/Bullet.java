@@ -9,20 +9,19 @@ public class Bullet {
     public final int DOWN = 1;
     // Going nowhere
     int heading = -1;
-    float speed =  350;
+    float speed=350;
     private float x;
     private float y;
     private RectF rect;
     private int width = 1;
     private int height;
-
+    private int bulletDamage=100;
     private boolean isActive;
 
     public Bullet(int screenY) {
 
         height = screenY / 20;
         isActive = false;
-
         rect = new RectF();
     }
 
@@ -33,7 +32,16 @@ public class Bullet {
     public boolean getStatus(){
         return isActive;
     }
-
+    public void  setBulletDamage(int damage)
+    {
+        bulletDamage=damage;
+    }
+    public int getBulletDamage()
+    {
+        return bulletDamage;
+    }
+    public void setBulletSpeed(float speed)
+    { this.speed=speed;}
     public void setInactive(){
         isActive = false;
     }

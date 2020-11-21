@@ -32,8 +32,8 @@ public class Player {
     // Is the ship moving and in which direction
     private boolean shipMoving = false;
     //Boundaries of screen
-    private float leftMargin;
-    private float rightMargin;
+
+
 
     // This the the constructor method
     // When we create an object from this class we will pass
@@ -49,8 +49,6 @@ public class Player {
 
         this.context = context;
 
-        leftMargin = 5;
-        rightMargin = screenX - length;
         // Start ship in roughly the screen centre
         x = screenX / 2;
         y = screenY - height;

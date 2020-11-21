@@ -78,19 +78,17 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
     private int playerExplodeID = -1;
     private int invaderExplodeID = -1;
     private int shootID = -1;
-    private int uhID = -1;
-    private int ohID = -1;
+    //number of invaders in column and row
+    int columnNumber=3;
+    int rowNumber=3;
     //The image used for live
     private Bitmap heart;
     // Lives
     private int lives = 3;
     // How menacing (fast) should the sound be?
     private long menaceInterval = 1000;
-    // Which menace sound should play next
-    private boolean uhOrOh;
-    // When did we last play a menacing sound
-    private long lastMenaceTime = System.currentTimeMillis();
-
+    private int previousScore=0;
+    private int currentLevel=1;
     // When the we initialize (call new()) on gameView
     // This special constructor method runs
     public SpaceInvadersEngine(Context context, int x, int y) {
@@ -145,42 +143,15 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             Log.e("error", "failed to load sound files");
         }
 
-        prepareLevel();
+        prepareLevel(currentLevel);
         top = 5;
         left = 5;
         right = x - playerShip.getLength();
         bottom = y - playerShip.getHeight();
 
     }
-Random random = new Random();
-    private void prepareLevel() {
-        // Here we will initialize all the game objects
-        // Make a new player space ship
-        playerShip = new Player(context, screenX, screenY);
-
-        // Prepare the player's bullet
-        for (int i = 0; i < playerBullets.length; i++) {
-            playerBullets[i] = new Bullet(screenY);
-        }
-        // Initialize the invadersBullets array
-        for (int i = 0; i < invadersBullets.length; i++) {
-            invadersBullets[i] = new Bullet(screenY);
-        }
-
-        // Build an army of invaders
-        numInvaders = 0;
-        for (int column = 0; column < 6; column++) {
-            for (int row = 0; row < 5; row++) {
-                invaders[numInvaders] = new Invader(context, row, column, screenX, screenY,random.nextInt(9)+1);
-                numInvaders++;
-            }
-        }
-
-        // Reset the menace level
-        menaceInterval = 1000;
 
 
-    }
 
     @Override
     public void run() {
@@ -203,25 +174,6 @@ Random random = new Random();
                 fps = 1000 / timeThisFrame;
             }
 
-            // We will do something new here towards the end of the project
-            // Play a sound based on the menace level
-           /* if (!paused) {
-                if ((startFrameTime - lastMenaceTime) > menaceInterval) {
-                    if (uhOrOh) {
-                        // Play Uh
-                     //   soundPool.play(uhID, 1, 1, 0, 0, 1);
-
-                    } else {
-                        // Play Oh
-                   //     soundPool.play(ohID, 1, 1, 0, 0, 1);
-                    }
-
-                    // Reset the last menace time
-                    lastMenaceTime = System.currentTimeMillis();
-                    // Alter value of uhOrOh
-                    uhOrOh = !uhOrOh;
-                }
-            } */
 
         }
 
@@ -312,7 +264,8 @@ Random random = new Random();
         }
 
         if (lost) {
-            prepareLevel();
+            currentLevel=1;
+            prepareLevel(currentLevel);
         }
 
         // Has the player's bullet hit the top of the screen
@@ -334,14 +287,19 @@ Random random = new Random();
                 for (int i = 0; i < numInvaders; i++) {
                     if (invaders[i].getVisibility()) {
                         if (RectF.intersects(bullet.getRect(), invaders[i].getRect())) {
-                            invaders[i].setInvisible();
+                            invaders[i].setHealth(invaders[i].getHealth()-bullet.getBulletDamage());
                             soundPool.play(invaderExplodeID, 1, 1, 0, 0, 1);
                             bullet.setInactive();
-                            score = score + 10;
-
+                            if(invaders[i].getHealth()==0) {
+                                invaders[i].setInvisible();
+                                score = score + invaders[i].getType()*10;
+                            }
                             // Has the player won
-                            if (score == numInvaders * 10) {
-                                newGameSetup();
+
+                            if (score==previousScore+ numInvaders*invaders[i].getType()*10) {
+                                currentLevel++;
+                                previousScore=score;
+                                prepareLevel(currentLevel);
                             }
                         }
                     }
@@ -353,7 +311,8 @@ Random random = new Random();
             if (invaders[i].getVisibility()) {
                 if (RectF.intersects(playerShip.getRect(), invaders[i].getRect())) {
                     soundPool.play(playerExplodeID, 1, 1, 0, 0, 1);
-                    newGameSetup();
+                    currentLevel=1;
+                    prepareLevel(currentLevel);
                 }
             }
         }
@@ -369,7 +328,8 @@ Random random = new Random();
 
                     // Is it game over?
                     if (lives == 0) {
-                        newGameSetup();
+                        currentLevel=1;
+                        prepareLevel(currentLevel);
                     }
                 }
             }
@@ -522,14 +482,56 @@ Random random = new Random();
         }
     }
 
-    private void newGameSetup() {
-        paused = true;
-        lives = 3;
-        score = 0;
-        prepareLevel();
+    private void prepareLevel(int level) {
+        // Here we will initialize all the game objects
+        if(level==10)
+        {
+            gameFinished();
+        }
+        else if(level==1)
+        {
+            paused = true;
+            lives = 3;
+            score = 0;
+            playerShip = new Player(context, screenX, screenY);
+            columnNumber=3;
+            rowNumber=3;
+        }
 
+
+        // Prepare the player's bullet
+        for (int i = 0; i < playerBullets.length; i++) {
+            playerBullets[i] = new Bullet(screenY);
+        }
+        // Initialize the invadersBullets array
+        for (int i = 0; i < invadersBullets.length; i++) {
+            invadersBullets[i] = new Bullet(screenY);
+            invadersBullets[i].setBulletSpeed(350+(level-1)*50);
+        }
+
+        // Build an army of invaders
+        numInvaders = 0;
+        for (int column = 0; column < columnNumber; column++) {
+            for (int row = 0; row < rowNumber; row++) {
+                invaders[numInvaders] = new Invader(context, row, column, screenX, screenY,level);
+                numInvaders++;
+            }
+        }
+        if(columnNumber<7)
+        {
+            columnNumber++;
+        }
+        else{
+            rowNumber++;
+        }
+        // Reset the menace level
+        menaceInterval = 1000;
     }
 
+    private void gameFinished()
+    {
+
+    }
     public void pause() {
         playing = false;
         try {
