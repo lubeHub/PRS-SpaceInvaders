@@ -28,19 +28,20 @@ import java.util.Random;
 @SuppressLint("ViewConstructor")
 public class SpaceInvadersEngine extends SurfaceView implements Runnable {
 
-    Context context;
+    private Context context;
     //List of background images
-    ArrayList<Background> backgrounds;
+    private ArrayList<Background> backgrounds;
     // Up to 60 invaders
-    Invader[] invaders = new Invader[60];
-    int numInvaders = 0;
+    private Invader[] invaders = new Invader[60];
+    private int numInvaders = 0;
     //The background
-    Background bg;
+    private Background bg;
     // The score
-    int score = 0;
-    float xDelta;
-    float yDelta;
+    private int score = 0;
+    private float xDelta;
+    private float yDelta;
     // This is our thread
+    private Thread drawThread = null;
     private Thread gameThread = null;
     // Our SurfaceHolder to lock the surface before we draw our graphics
     private SurfaceHolder ourHolder;
@@ -65,8 +66,9 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
     // The players ship
     private Player playerShip;
     // The player's bullets
-    private Bullet[] playerBullets = new Bullet[200];
     private int maxPlayerBullet = 200;
+    private Bullet[] playerBullets = new Bullet[maxPlayerBullet];
+
     private int playerNextBullet;
     //Counter used to delay between  player's bullets
     private int shootCounter;
@@ -79,8 +81,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
     private int invaderExplodeID = -1;
     private int shootID = -1;
     //number of invaders in column and row
-    int columnNumber=3;
-    int rowNumber=3;
+    private int columnNumber=3;
+    private int rowNumber=3;
     //The image used for live
     private Bitmap heart;
     // Lives
@@ -89,6 +91,11 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
     private long menaceInterval = 1000;
     private int previousScore=0;
     private int currentLevel=1;
+    private int numUpgrades=0;
+    private int bulletDamage=100;
+    private int baseScore = 100;
+    private int baseDamage =100;
+    private Upgrade[] upgrade = new Upgrade[100];
     // When the we initialize (call new()) on gameView
     // This special constructor method runs
     public SpaceInvadersEngine(Context context, int x, int y) {
@@ -170,10 +177,11 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             // time animations and more.
             // This is used to help calculate the fps
             long timeThisFrame = System.currentTimeMillis() - startFrameTime;
-            if (timeThisFrame >= 1) {
+          /*  if (timeThisFrame >= 1) {
                 fps = 1000 / timeThisFrame;
             }
 
+    */fps=20;
 
         }
 
@@ -200,7 +208,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
 
                 // Does he want to take a shot?
                 if (invaders[i].takeAim(playerShip.getX(),
-                        playerShip.getLength())) {
+                        playerShip.getLength(),invaders[i].getType())) {
 
                     // If so try and spawn a bullet
                     if (invadersBullets[nextBullet].shoot(invaders[i].getX()
@@ -245,6 +253,12 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
                 bullet.update(fps);
             }
         }
+        //Update all upgrades if active
+        for (Upgrade  upgrades: upgrade){
+            if(upgrades.getStatus()){
+                upgrades.update(fps);
+            }
+        }
 
         // Did an invader bump into the edge of the screen
         if (bumped) {
@@ -280,7 +294,12 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
                 bullet.setInactive();
             }
         }
-
+        //Has an upgrade hit the bottom of the screen
+        for (Upgrade upgrades : upgrade) {
+            if (upgrades.getImpactPointY() > screenY) {
+                upgrades.setInactive();
+            }
+        }
         // Has the player's bullet hit an invader
         for (Bullet bullet : playerBullets) {
             if (bullet.getStatus()) {
@@ -290,13 +309,19 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
                             invaders[i].setHealth(invaders[i].getHealth()-bullet.getBulletDamage());
                             soundPool.play(invaderExplodeID, 1, 1, 0, 0, 1);
                             bullet.setInactive();
-                            if(invaders[i].getHealth()==0) {
+                            if(invaders[i].getHealth()<=0) {
                                 invaders[i].setInvisible();
-                                score = score + invaders[i].getType()*10;
+                                score = score + invaders[i].getType()*baseScore;
+
+                                if(invaders[i].dropUpgradeChance())
+                                {
+                                    upgrade[numUpgrades].dropUpgrade(invaders[i].getX() + invaders[i].getLength() / 2, invaders[i].getY());
+                                    numUpgrades++;
+                                }
                             }
                             // Has the player won
 
-                            if (score==previousScore+ numInvaders*invaders[i].getType()*10) {
+                            if (score==previousScore+ numInvaders*invaders[i].getType()*baseScore) {
                                 currentLevel++;
                                 previousScore=score;
                                 prepareLevel(currentLevel);
@@ -334,6 +359,17 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
                 }
             }
         }
+        //if player catch an upgrade
+        for (Upgrade upgrades : upgrade) {
+            if (upgrades.getStatus()) {
+                        if (RectF.intersects(upgrades.getRect(), playerShip.getRect())) {
+                            for(Bullet bullets : playerBullets)
+                            {
+                                bulletDamage=bullets.getBulletDamage()+baseDamage;
+                                bullets.setBulletDamage(bulletDamage);
+                            }
+                            upgrades.setInactive();
+                        }}}
         for (Background bg : backgrounds) {
             bg.update(fps);
         }
@@ -372,6 +408,12 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             for (Bullet bullet : invadersBullets) {
                 if (bullet.getStatus()) {
                     canvas.drawRect(bullet.getRect(), paint);
+                }
+            }
+            for(Upgrade upgrades:upgrade)
+            {
+                if(upgrades.getStatus()){
+                    canvas.drawBitmap(upgrades.getBitmap(),upgrades.getX(), upgrades.getY(),paint);
                 }
             }
 
@@ -488,27 +530,34 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
         {
             gameFinished();
         }
-        else if(level==1)
+       else if(level==1)
         {
-            paused = true;
+
             lives = 3;
             score = 0;
+            previousScore=0;
+            bulletDamage=100;
             playerShip = new Player(context, screenX, screenY);
             columnNumber=3;
             rowNumber=3;
         }
 
-
+        paused = true;
         // Prepare the player's bullet
         for (int i = 0; i < playerBullets.length; i++) {
             playerBullets[i] = new Bullet(screenY);
+            playerBullets[i].setBulletDamage(bulletDamage);
         }
         // Initialize the invadersBullets array
         for (int i = 0; i < invadersBullets.length; i++) {
             invadersBullets[i] = new Bullet(screenY);
             invadersBullets[i].setBulletSpeed(350+(level-1)*50);
         }
-
+        //Initialize the upgrade array
+            for(int i = 0; i< upgrade.length; i++)
+            {
+                upgrade[i] = new Upgrade(context,screenY);
+            }
         // Build an army of invaders
         numInvaders = 0;
         for (int column = 0; column < columnNumber; column++) {

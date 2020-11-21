@@ -195,24 +195,32 @@ public class Invader {
         shipSpeed = shipSpeed * 1.18f;
     }
 
-    public boolean takeAim(float playerShipX, float playerShipLength){
+    public boolean takeAim(float playerShipX, float playerShipLength,int type){
 
         int randomNumber = -1;
-
+        //variable that increase chance of shooting for bigger levels
+        int shootMultiplier=600/(type);
+        //variable that increase chance of shooting for bigger levels and while player ship is near invaders
+        int closeShootMultiplier=600/(type*2);
         // If near the player
         if((playerShipX + playerShipLength > x &&
                 playerShipX + playerShipLength < x + length) || (playerShipX > x && playerShipX < x + length)) {
-
-            // A 1 in 500 chance to shoot
-            randomNumber = generator.nextInt(150);
+            randomNumber = generator.nextInt(closeShootMultiplier);
             if(randomNumber == 0) {
                 return true;
             }
 
         }
 
-        // If firing randomly (not near the player) a 1 in 2000 chance
-        randomNumber = generator.nextInt(2000);
+        // If firing randomly (not near the player) a 1 in 300 chance
+        randomNumber = generator.nextInt(shootMultiplier);
         return randomNumber == 0;
+    }
+    //chance to drop an upgrade
+    public boolean dropUpgradeChance()
+    {
+        int randomNumber=-1;
+        randomNumber=generator.nextInt(2);
+        return randomNumber==0;
     }
 }
