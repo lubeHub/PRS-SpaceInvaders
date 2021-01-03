@@ -10,9 +10,9 @@ public class Upgrade {
     float speed=350;
     private float x;
     private float y;
-    private RectF rect;
-    private int width = 30;
-    private int height;
+    private final RectF rect;
+    private final int width = 30;
+    private final int height;
     private boolean isActive;
     private Bitmap bitmap;
 
@@ -47,8 +47,7 @@ public class Upgrade {
     {
         return y;
     }
-    public void setUpgradeSpeed(float speed)
-    { this.speed=speed;}
+
     public void setInactive(){
         isActive = false;
     }

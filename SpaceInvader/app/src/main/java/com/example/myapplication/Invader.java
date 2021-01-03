@@ -17,8 +17,8 @@ public class Invader {
     private Bitmap bitmap;
 
     // How long and high our invader will be
-    private float length;
-    private float height;
+    private final float length;
+    private final float height;
 
     // X is the far left of the rectangle which forms our invader
     private float x;
@@ -34,24 +34,24 @@ public class Invader {
 
     // Is the ship moving and in which direction
     private int shipMoving = RIGHT;
-    private int type;
+    private final int type;
     boolean isVisible;
 
-    private float bulletSpeed;
+
     public Invader(Context context, int row, int column, int screenX, int screenY,int type) {
 
         // Initialize a blank RectF
         rect = new RectF();
 
-        length = screenX / 20;
-        height = screenY / 20;
+        length = (float)screenX / 20;
+        height = (float)screenY / 20;
 
         isVisible = true;
         this.type=type;
         int padding = screenY / 25;
 
         x = column * (length + padding);
-        y = row * (length + padding/2);
+        y = row * (length + (float)padding/2);
 
         // Initialize the bitmap
 
@@ -59,47 +59,47 @@ public class Invader {
             case 1:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster1);
                 health = 100;
-                bulletSpeed=300;
+
                 break;
             case 2:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster2);
                 health = 200;
-                bulletSpeed=300;
+
                 break;
             case 3:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster3);
                 health = 300;
-                bulletSpeed=350;
+
                 break;
             case 4:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster4);
                 health = 400;
-                bulletSpeed=350;
+
                 break;
             case 5:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster5);
                 health = 400;
-                bulletSpeed=400;
+
                 break;
             case 6:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster6);
                 health = 300;
-                bulletSpeed=400;
+
                 break;
             case 7:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster7);
                 health = 200;
-                bulletSpeed=450;
+
                 break;
             case 8:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster8);
                 health = 500;
-                bulletSpeed=450;
+
                 break;
             case 9:
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster9);
                 health = 400;
-                bulletSpeed=500;
+
                 break;
 
         }
@@ -125,10 +125,6 @@ public class Invader {
         return  health;
     }
 
-    public void setType(int type)
-    {
-        this.type=type;
-    }
     public int getType()
     {
         return type;
@@ -139,10 +135,6 @@ public class Invader {
 
     public boolean getVisibility(){
         return isVisible;
-    }
-
-    public float getBulletSpeed() {
-        return bulletSpeed;
     }
 
     public RectF getRect(){
@@ -197,11 +189,11 @@ public class Invader {
 
     public boolean takeAim(float playerShipX, float playerShipLength,int type){
 
-        int randomNumber = -1;
+        int randomNumber;
         //variable that increase chance of shooting for bigger levels
-        int shootMultiplier=600/(type);
+        int shootMultiplier=700/(type);
         //variable that increase chance of shooting for bigger levels and while player ship is near invaders
-        int closeShootMultiplier=600/(type*2);
+        int closeShootMultiplier=700/(type*2);
         // If near the player
         if((playerShipX + playerShipLength > x &&
                 playerShipX + playerShipLength < x + length) || (playerShipX > x && playerShipX < x + length)) {
@@ -219,8 +211,8 @@ public class Invader {
     //chance to drop an upgrade
     public boolean dropUpgradeChance()
     {
-        int randomNumber=-1;
-        randomNumber=generator.nextInt(2);
+        int randomNumber;
+        randomNumber=generator.nextInt(15);
         return randomNumber==0;
     }
 }

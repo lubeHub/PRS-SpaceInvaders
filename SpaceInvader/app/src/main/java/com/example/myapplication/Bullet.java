@@ -12,9 +12,9 @@ public class Bullet {
     float speed=350;
     private float x;
     private float y;
-    private RectF rect;
-    private int width = 1;
-    private int height;
+    private final RectF rect;
+    private final int width = 1;
+    private final int height;
     private int bulletDamage=100;
     private boolean isActive;
 

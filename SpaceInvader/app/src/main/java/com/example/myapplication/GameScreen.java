@@ -1,14 +1,15 @@
 package com.example.myapplication;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.View;
 
-public class GameScreen extends Activity {
+import java.util.concurrent.CompletableFuture;
+
+public class GameScreen extends Activity{
     SpaceInvadersEngine spaceInvadersEngine;
 
     @Override
@@ -25,6 +26,7 @@ public class GameScreen extends Activity {
         display.getSize(size);
         spaceInvadersEngine = new SpaceInvadersEngine(this, size.x, size.y);
         setContentView(spaceInvadersEngine);
+
     }
 
         // This method executes when the player starts the game
@@ -47,5 +49,5 @@ public class GameScreen extends Activity {
 
 
 
-    }
+}
 

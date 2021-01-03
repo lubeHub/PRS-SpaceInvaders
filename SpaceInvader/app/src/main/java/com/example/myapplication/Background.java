@@ -4,7 +4,7 @@ package com.example.myapplication;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+
 
 public class Background {
 
