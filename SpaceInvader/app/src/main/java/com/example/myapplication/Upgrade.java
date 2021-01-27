@@ -16,6 +16,7 @@ public class Upgrade {
     private boolean isActive;
     private Bitmap bitmap;
 
+
     public Upgrade(Context context, int screenY) {
 
         height = screenY / 20;

@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 
 public class Bullet {
@@ -13,22 +16,34 @@ public class Bullet {
     private float x;
     private float y;
     private final RectF rect;
-    private final int width = 1;
+    private final int width ;
     private final int height;
     private int bulletDamage=100;
     private boolean isActive;
+    private Bitmap bitmap;
+    private Context context;
+    public Bullet(int screenY, int screenX, Context context) {
 
-    public Bullet(int screenY) {
-
-        height = screenY / 20;
+        height = screenY / 30;
         isActive = false;
         rect = new RectF();
+        width = screenX / 60;
+        this.context = context;
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.bullet), width, height,false);
+
     }
 
     public RectF getRect(){
         return  rect;
     }
-
+    public void setBitmap(Bitmap bitmap){ this.bitmap=bitmap;}
+    public Bitmap getBitmap(){return  bitmap;}
+    public float getX(){return x;}
+    public float getY(){return y;}
+    public float getWidth(){return width;}
+    public float getHeight(){return height;}
     public boolean getStatus(){
         return isActive;
     }

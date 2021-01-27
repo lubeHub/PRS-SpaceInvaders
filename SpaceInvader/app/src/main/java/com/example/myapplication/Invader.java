@@ -36,7 +36,7 @@ public class Invader {
     private int shipMoving = RIGHT;
     private final int type;
     boolean isVisible;
-
+    int imageID;
 
     public Invader(Context context, int row, int column, int screenX, int screenY,int type) {
 
@@ -54,55 +54,11 @@ public class Invader {
         y = row * (length + (float)padding/2);
 
         // Initialize the bitmap
+        imageID= context.getResources().getIdentifier("monster"+ String.valueOf(type),"drawable",context.getPackageName());
+        bitmap = BitmapFactory.decodeResource(context.getResources(), imageID);
+        health = type * 100;
 
-        switch (type){
-            case 1:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster1);
-                health = 100;
 
-                break;
-            case 2:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster2);
-                health = 200;
-
-                break;
-            case 3:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster3);
-                health = 300;
-
-                break;
-            case 4:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster4);
-                health = 400;
-
-                break;
-            case 5:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster5);
-                health = 400;
-
-                break;
-            case 6:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster6);
-                health = 300;
-
-                break;
-            case 7:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster7);
-                health = 200;
-
-                break;
-            case 8:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster8);
-                health = 500;
-
-                break;
-            case 9:
-                bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.monster9);
-                health = 400;
-
-                break;
-
-        }
         // stretch the first bitmap to a size appropriate for the screen resolution
         bitmap = Bitmap.createScaledBitmap(bitmap,
                 (int) (length),
@@ -212,7 +168,7 @@ public class Invader {
     public boolean dropUpgradeChance()
     {
         int randomNumber;
-        randomNumber=generator.nextInt(15);
+        randomNumber=generator.nextInt(5);
         return randomNumber==0;
     }
 }

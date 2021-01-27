@@ -16,7 +16,8 @@ public class Player {
         @speed - speed of ship
         @bitmap - image of ship
      */
-
+    private int type;
+    private int imageID;
     private Bitmap bitmap;
     /*
       @length - ship length
@@ -36,12 +37,12 @@ public class Player {
     // This the the constructor method
     // When we create an object from this class we will pass
     // in the screen width and height
-    public Player(Context context, int screenX, int screenY) {
+    public Player(Context context, int screenX, int screenY,int type) {
 
         // Initialize a blank RectF
         rect = new RectF();
 
-
+        this.type=type;
         length = (float)screenX / 10;
         height = (float)screenY / 10;
 
@@ -52,6 +53,18 @@ public class Player {
         y = screenY - height;
 
         // Initialize the bitmap
+        imageID= context.getResources().getIdentifier("ship"+ String.valueOf(type),"drawable",context.getPackageName());
+
+                bitmap = BitmapFactory.decodeResource(context.getResources(), imageID);
+
+
+
+        // stretch the first bitmap to a size appropriate for the screen resolution
+        bitmap = Bitmap.createScaledBitmap(bitmap,
+                (int) (length),
+                (int) (height),
+                false);
+
         bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.player),(int)(length),(int)(height),false);
 
 
@@ -87,7 +100,7 @@ public class Player {
     public float getHeight() {
         return height;
     }
-
+    public int getType() {return type;}
 
     public float getLength() {
         return length;
@@ -102,6 +115,7 @@ public class Player {
     // This update method will be called from update in SpaceInvadersView
     // It determines if the player ship needs to move and changes the coordinates
     public void update(long fps) {
+
 
         if (shipMoving) {
             bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.playermove),(int)(length),(int)(height),false);
