@@ -4,37 +4,34 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
-import androidx.annotation.Nullable;
+import android.util.Log;
+
 
 
 
 public class BackgroundSoundService extends Service {
-    MediaPlayer mediaPlayer;
-    @Nullable
+    MediaPlayer player;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-    @Override
+
     public void onCreate() {
-        super.onCreate();
-        mediaPlayer = MediaPlayer.create(this,R.raw.opening);
-        mediaPlayer.setLooping(true); // Set looping
-        mediaPlayer.setVolume(100, 100);
+        player = MediaPlayer.create(this, R.raw.opening); //select music file
+        player.setLooping(true); //set looping
     }
+
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mediaPlayer.start();
-        return startId;
+        player.start();
+        return Service.START_NOT_STICKY;
     }
-    public void onStart(Intent intent, int startId) {
-    }
-    @Override
+
     public void onDestroy() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
-    }
-    @Override
-    public void onLowMemory() {
+        player.stop();
+        player.release();
+        stopSelf();
+        super.onDestroy();
     }
 
 }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/background_hdpi"
+    android:background="@drawable/game_start_background"
     tools:context=".WelcomeScreen">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,24 +13,28 @@
 
         <Button
             android:id="@+id/btnNewGame"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="161dp"
             android:layout_height="56dp"
             android:text="@string/new_game"
+            android:textColor="#0abdc6"
+            android:textSize="22sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.936" />
+            app:layout_constraintVertical_bias="0.976" />
 
         <TextView
             android:id="@+id/txtSpaceInvaders"
             android:layout_width="311dp"
             android:layout_height="113dp"
-            android:layout_marginTop="116dp"
+            android:layout_marginTop="132dp"
             android:fontFamily="@font/ka1"
+            android:rotationX="25"
             android:text="@string/spaceInvaders"
             android:textAlignment="center"
-            android:textColor="#191919"
+            android:textColor="#0abdc6"
             android:textSize="45sp"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"

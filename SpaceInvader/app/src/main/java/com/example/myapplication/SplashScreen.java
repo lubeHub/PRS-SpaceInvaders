@@ -25,8 +25,13 @@ public class SplashScreen extends AppCompatActivity {
                 Intent i = new Intent(SplashScreen.this, WelcomeScreen.class);
                 startActivity(i);
             }
-        }, 3000);
+        }, 5000);
 
     }
 
+    protected void onDestroy() {
+        //stop service and stop music
+        stopService(new Intent(SplashScreen.this, BackgroundSoundService.class));
+        super.onDestroy();
+    }
 }

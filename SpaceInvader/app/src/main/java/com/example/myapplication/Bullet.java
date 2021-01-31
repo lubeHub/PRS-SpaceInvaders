@@ -84,19 +84,19 @@ public class Bullet {
     }
 
     public void update(long fps){
+        if(fps!=0) {
+            // Just move up or down
+            if (heading == UP) {
+                y = y - speed / fps;
+            } else {
+                y = y + speed / fps;
+            }
 
-        // Just move up or down
-        if(heading == UP){
-            y = y - speed / fps;
-        }else{
-            y = y + speed / fps;
+            // Update rect
+            rect.left = x;
+            rect.right = x + width;
+            rect.top = y;
+            rect.bottom = y + height;
         }
-
-        // Update rect
-        rect.left = x;
-        rect.right = x + width;
-        rect.top = y;
-        rect.bottom = y + height;
-
     }
 }

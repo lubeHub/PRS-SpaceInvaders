@@ -15,6 +15,7 @@ public class Invader {
 
     // The player ship will be represented by a Bitmap
     private Bitmap bitmap;
+    private Bitmap bitmap2;
 
     // How long and high our invader will be
     private final float length;
@@ -37,6 +38,7 @@ public class Invader {
     private final int type;
     boolean isVisible;
     int imageID;
+    int imageID2;
 
     public Invader(Context context, int row, int column, int screenX, int screenY,int type) {
 
@@ -55,12 +57,19 @@ public class Invader {
 
         // Initialize the bitmap
         imageID= context.getResources().getIdentifier("monster"+ String.valueOf(type),"drawable",context.getPackageName());
+        imageID2= context.getResources().getIdentifier("monster"+ String.valueOf(type)+"m","drawable",context.getPackageName());
+
         bitmap = BitmapFactory.decodeResource(context.getResources(), imageID);
+        bitmap2 =BitmapFactory.decodeResource(context.getResources(), imageID2);
         health = type * 100;
 
 
         // stretch the first bitmap to a size appropriate for the screen resolution
         bitmap = Bitmap.createScaledBitmap(bitmap,
+                (int) (length),
+                (int) (height),
+                false);
+        bitmap2= Bitmap.createScaledBitmap(bitmap2,
                 (int) (length),
                 (int) (height),
                 false);
@@ -113,22 +122,23 @@ public class Invader {
     public float getLength(){
         return length;
     }
-
+    public Bitmap getBitmap2() {return bitmap2;}
     public void update(long fps){
-        if(shipMoving == LEFT){
-            x = x - shipSpeed / fps;
+        if(fps!=0) {
+            if (shipMoving == LEFT) {
+                x = x - shipSpeed / fps;
+            }
+
+            if (shipMoving == RIGHT) {
+                x = x + shipSpeed / fps;
+            }
+
+            // Update rect which is used to detect hits
+            rect.top = y;
+            rect.bottom = y + height;
+            rect.left = x;
+            rect.right = x + length;
         }
-
-        if(shipMoving == RIGHT){
-            x = x + shipSpeed / fps;
-        }
-
-        // Update rect which is used to detect hits
-        rect.top = y;
-        rect.bottom = y + height;
-        rect.left = x;
-        rect.right = x + length;
-
     }
 
     public void dropDownAndReverse(){
@@ -168,7 +178,7 @@ public class Invader {
     public boolean dropUpgradeChance()
     {
         int randomNumber;
-        randomNumber=generator.nextInt(5);
+        randomNumber=generator.nextInt(20);
         return randomNumber==0;
     }
 }

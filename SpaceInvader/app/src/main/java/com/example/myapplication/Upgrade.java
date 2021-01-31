@@ -69,14 +69,16 @@ public class Upgrade {
     }
 
     public void update(long fps){
+        if(fps!=0) {
+
 
             y = y + speed / fps;
 
-        // Update rect
-        rect.left = x;
-        rect.right = x + width;
-        rect.top = y;
-        rect.bottom = y + height;
-
+            // Update rect
+            rect.left = x;
+            rect.right = x + width;
+            rect.top = y;
+            rect.bottom = y + height;
+        }
     }
 }
