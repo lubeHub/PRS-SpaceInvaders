@@ -8,30 +8,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
-public class SplashScreen extends AppCompatActivity {
+public class GameFinished extends AppCompatActivity {
+
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splashscreen);
+        setContentView(R.layout.activity_gamefinished);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        textView=findViewById(R.id.score);
+        textView.setText("");
 
-        startService(new Intent(SplashScreen.this, BackgroundSoundService.class));
-        Handler hd = new Handler();
-        hd.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent i = new Intent(SplashScreen.this, WelcomeScreen.class);
-                startActivity(i);
-            }
-        }, 3000);
 
     }
-
     protected void onDestroy() {
         //stop service and stop music
-        stopService(new Intent(SplashScreen.this, BackgroundSoundService.class));
         super.onDestroy();
     }
 }

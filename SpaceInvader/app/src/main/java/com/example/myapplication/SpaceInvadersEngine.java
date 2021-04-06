@@ -2,6 +2,7 @@
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -43,7 +45,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
     private final Invader[] invaders = new Invader[60];
     private int numInvaders = 0;
     // The score
-    private int score = 0;
+    public int score = 0;
     private float xDelta;
     private float yDelta;
     // This is our thread
@@ -310,21 +312,44 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
         // Has the player's bullet hit an invader
         for (Bullet bullet : playerBullets) {
             if (bullet.getStatus()) {
-                for (int i = 0; i < numInvaders; i++) {
-                    if (invaders[i].getVisibility()) {
+                for (int i = 0; i < numInvaders; i++) {      //if invader is visible and it is not exploded
+                    if (invaders[i].getVisibility()&& invaders[i].getBitmap()!=invaders[i].getBitmap2()) {
                         if (RectF.intersects(bullet.getRect(), invaders[i].getRect())) {
                             invaders[i].setHealth(invaders[i].getHealth() - bullet.getBulletDamage());
                             soundPool.play(invaderExplodeID, 1, 1, 0, 0, 1);
                             bullet.setInactive();
                             if (invaders[i].getHealth() <= 0) {
-                                invaders[i].setInvisible();
+                                invaders[i].setExplosion();
+
                                 score = score + invaders[i].getType() * baseScore;
 
                                 if (invaders[i].dropUpgradeChance()) {
                                     upgrade[numUpgrades].dropUpgrade(invaders[i].getX() + invaders[i].getLength() / 2, invaders[i].getY());
                                     numUpgrades++;
                                 }
+                                final Handler handler = new Handler(Looper.getMainLooper());
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Do something after 5s = 5000ms
+                                        for(int i=0;i<invaders.length;i++) {
+                                            try {
+                                                if (invaders[i].getHealth() <= 0) {
+                                                    invaders[i].setInvisible();
+                                                }
+                                            }
+                                            catch (Exception e)
+                                            {
+
+                                            }
+
+                                        }
+                                    }
+                                }, 250);
+
                             }
+
+
                             // Has the player won
 
                             if (score == previousScore + numInvaders * invaders[i].getType() * baseScore) {
@@ -337,6 +362,9 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
                 }
             }
         }
+
+
+
         //if playerShip hit invader
         for (int i = 0; i < numInvaders; i++) {
             if (invaders[i].getVisibility()) {
@@ -387,6 +415,8 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             bg.update(fps);
         }
     }
+
+
 
     @SuppressLint("DefaultLocale")
     private void draw() {
@@ -621,7 +651,12 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
         }
         else if (level==10)
         {
-            bossInvader();
+            columnNumber=0;
+            rowNumber=0;
+            numInvaders=1;
+            invaders[0] = new Invader(context,0,0, screenX, screenY,50);
+
+
         }
         else if (level == 1) {
 
@@ -632,7 +667,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             playerShip = new Player(context, screenX, screenY,level);
             columnNumber = 3;
             rowNumber = 3;
-            collectedUpgrades=0;
+            collectedUpgrades=1;
         }
 
         paused = true;
@@ -662,6 +697,10 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
                 numInvaders++;
             }
         }
+        if(numInvaders==0)
+        {
+            numInvaders=1;
+        }
         if (columnNumber < 7) {
             columnNumber++;
         } else {
@@ -676,9 +715,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
     private void gameFinished() {
 
     }
-    private void bossInvader(){
 
-    }
     public void pause() {
         playing = false;
         try {

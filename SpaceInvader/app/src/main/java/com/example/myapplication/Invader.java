@@ -35,18 +35,27 @@ public class Invader {
 
     // Is the ship moving and in which direction
     private int shipMoving = RIGHT;
-    private final int type;
+    private  int type;
     boolean isVisible;
     int imageID;
     int imageID2;
-
+    private Bitmap bitmap_explosion;
     public Invader(Context context, int row, int column, int screenX, int screenY,int type) {
 
         // Initialize a blank RectF
         rect = new RectF();
 
-        length = (float)screenX / 20;
-        height = (float)screenY / 20;
+        if(type==20)
+        {
+
+            length = (float)screenX / 3;
+            height = (float)screenY / 3;
+
+        }
+        else {
+            length = (float) screenX / 20;
+            height = (float) screenY / 20;
+             }
 
         isVisible = true;
         this.type=type;
@@ -58,10 +67,16 @@ public class Invader {
         // Initialize the bitmap
         imageID= context.getResources().getIdentifier("monster"+ String.valueOf(type),"drawable",context.getPackageName());
         imageID2= context.getResources().getIdentifier("monster"+ String.valueOf(type)+"m","drawable",context.getPackageName());
-
-        bitmap = BitmapFactory.decodeResource(context.getResources(), imageID);
-        bitmap2 =BitmapFactory.decodeResource(context.getResources(), imageID2);
+        if( type==20) {
+            bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss);
+            bitmap2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss);
+        }
+        else {
+            bitmap = BitmapFactory.decodeResource(context.getResources(), imageID);
+            bitmap2 = BitmapFactory.decodeResource(context.getResources(), imageID2);
+        }
         health = type * 100;
+        bitmap_explosion = BitmapFactory.decodeResource(context.getResources(), R.drawable.explosion);
 
 
         // stretch the first bitmap to a size appropriate for the screen resolution
@@ -69,17 +84,23 @@ public class Invader {
                 (int) (length),
                 (int) (height),
                 false);
+
         bitmap2= Bitmap.createScaledBitmap(bitmap2,
                 (int) (length),
                 (int) (height),
                 false);
 
+        bitmap_explosion = Bitmap.createScaledBitmap(bitmap_explosion,
+                (int) (length),
+                (int) (height),
+                false);
         // stretch the first bitmap to a size appropriate for the screen resolution
 
 
         // How fast is the invader in pixels per second
         shipSpeed = 40;
     }
+
     public void setHealth(int health)
     {
         this.health=health;
@@ -110,6 +131,10 @@ public class Invader {
         return bitmap;
     }
 
+    public void setExplosion() {
+        bitmap=bitmap_explosion;
+        bitmap2=bitmap_explosion;
+    }
 
     public float getX(){
         return x;
@@ -157,9 +182,10 @@ public class Invader {
 
         int randomNumber;
         //variable that increase chance of shooting for bigger levels
-        int shootMultiplier=700/(type);
+
+        int shootMultiplier=1000/(type);
         //variable that increase chance of shooting for bigger levels and while player ship is near invaders
-        int closeShootMultiplier=700/(type*2);
+        int closeShootMultiplier=800/(type*2);
         // If near the player
         if((playerShipX + playerShipLength > x &&
                 playerShipX + playerShipLength < x + length) || (playerShipX > x && playerShipX < x + length)) {

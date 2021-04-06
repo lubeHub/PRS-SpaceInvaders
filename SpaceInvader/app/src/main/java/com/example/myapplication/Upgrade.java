@@ -24,8 +24,8 @@ public class Upgrade {
         rect = new RectF();
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.upgrade);
         bitmap = Bitmap.createScaledBitmap(bitmap,
-                (int) (width),
-                (int) (height),
+                (int) (75),
+                (int) (75),
                 false);
     }
 
