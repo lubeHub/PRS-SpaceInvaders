@@ -477,9 +477,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             for (int i = 0; i < lives; i++) {
                 canvas.drawBitmap(heart, 220 + i * 50, 23, null);
             }
-            while(fps==0) {
-                 canvas.drawBitmap(bannerLoading,0,(float)(screenY/2-(screenY/14)),null);
-            }
+
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
         }
@@ -654,7 +652,7 @@ public class SpaceInvadersEngine extends SurfaceView implements Runnable {
             columnNumber=0;
             rowNumber=0;
             numInvaders=1;
-            invaders[0] = new Invader(context,0,0, screenX, screenY,50);
+            invaders[0] = new Invader(context,0,0, screenX, screenY,20);
 
 
         }
